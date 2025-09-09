@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload Property</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+            width: 450px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus,
+        input[type="file"]:focus {
+            border-color: #3498db;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Upload Property</h2>
+
+        <form action="/seller/save" method="post" enctype="multipart/form-data">
+            <label>Property Name:</label>
+            <input type="text" name="propertyName" required>
+
+            <label>Property Type:</label>
+            <select name="propertyType" required>
+                <option value="">--Select--</option>
+                <option value="Rent">Rent</option>
+                <option value="Sale">Sale</option>
+            </select>
+
+            <label>Square Feet:</label>
+            <input type="text" name="squareFeet" required>
+
+            <label>Rate:</label>
+            <input type="number" name="rate" required>
+
+            <label>Place:</label>
+            <input type="text" name="place" required>
+
+            <label>City:</label>
+            <input type="text" name="city" required>
+
+            <label>State:</label>
+            <input type="text" name="state" required>
+
+            <label>Postal Code:</label>
+            <input type="text" name="postalCode" required>
+
+            <label>Property Category:</label>
+            <select name="propertyCategory" required>
+                <option value="">--Select--</option>
+                <option value="Apartment">Apartment</option>
+                <option value="House">House</option>
+                <option value="Land">Land</option>
+            </select>
+
+            <label>Furnished:</label>
+            <select name="furnished" required>
+                <option value="">--Select--</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <label>Built Year:</label>
+            <input type="text" name="builtYear" placeholder="YYYY" required>
+
+            <label>Amenities:</label>
+            <input type="text" name="amenities" placeholder="Pool, Parking, Gym" required>
+
+            <label>Description:</label>
+            <textarea name="description" rows="3" placeholder="Write a short description..." required></textarea>
+
+            <label>Land Owner:</label>
+            <input type="text" name="landOwner" required>
+
+            <label>Contact:</label>
+            <input type="text" name="contact" required>
+
+            <label>Upload Image:</label>
+            <input type="file" name="image" required>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</body>
+</html>

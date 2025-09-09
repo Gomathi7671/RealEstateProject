@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .error { color: red; text-align: center; }
+        .success { color: green; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Register</h2>
+        <form th:action="@{/register}" method="post" th:object="${user}">
+            <input type="text" th:field="*{name}" placeholder="Full Name" required>
+            <input type="email" th:field="*{email}" placeholder="Email" required>
+            <input type="password" th:field="*{password}" placeholder="Password" required>
+            
+            <label>Role:</label>
+            <select th:field="*{role}">
+                <option value="CUSTOMER">Customer</option>
+                <option value="SELLER">Seller</option>
+                <option value="ADMIN">Admin</option>
+            </select>
+            
+            <button type="submit">Register</button>
+        </form>
+
+        <p class="error" th:text="${error}"></p>
+        <p class="success" th:text="${success}"></p>
+        
+        <p style="text-align:center;">Already have an account? 
+            <a th:href="@{/login}">Login</a>
+        </p>
+    </div>
+</body>
+</html>

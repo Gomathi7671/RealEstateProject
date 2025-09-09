@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buyer - Properties</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+        h2 { text-align: center; }
+        form { text-align: center; margin-bottom: 20px; }
+        form input, form select { margin: 5px; padding: 8px; }
+        .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; }
+        .btn { display: inline-block; margin-top: 10px; padding: 8px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+    .btn-back {
+    display: inline-block;
+    margin: 15px 0;
+    padding: 8px 16px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-back:hover {
+    background-color: #217dbb;
+}
+
+    
+    </style>
+</head>
+<body>
+    <h2>Search Properties</h2>
+
+    <form th:action="@{/buyer/search}" method="get">
+        <input type="text" name="city" placeholder="Enter the City">
+        <select name="type">
+            <option value="">Any Type</option>
+            <option value="Rent">Rent</option>
+            <option value="Sale">Sale</option>
+        </select>
+        <select name="category">
+            <option value="">Any Category</option>
+            <option value="Apartment">Apartment</option>
+            <option value="House">House</option>
+            <option value="Plot">Plot</option>
+        </select>
+        <input type="number" name="minRate" placeholder="Min Price (eg: 300000.0)">
+        <input type="number" name="maxRate" placeholder="Max Price(eg: 400000.0)">
+        <button type="submit">Search</button>
+    </form>
+<div th:if="${#lists.isEmpty(properties)}">
+    <p style="text-align:center; font-weight:bold; color:red;">No properties found for your search.</p>
+</div>
+
+<div class="card-container" th:if="${!#lists.isEmpty(properties)}">
+    <div class="card" th:each="property : ${properties}">
+        <img th:src="${property.imageUrl}" alt="Property Image"/>
+        <h3 th:text="${property.propertyName}"></h3>
+        <p th:text="${property.place}"></p>
+        <p th:text="${property.propertyType} + ' - ' + ${property.propertyCategory}"></p>
+        <p th:text="'Price: ₹' + ${property.rate}"></p>
+        <a th:href="@{'/buyer/view/' + ${property.id}}" class="btn">View Details</a>
+    </div>
+</div>
+<div>
+    <a href="/" class="btn-back">back to home</a>
+</div>
+
+
+</body>
+</html>

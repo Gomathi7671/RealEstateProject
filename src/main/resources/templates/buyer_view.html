@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Property Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        h2 { margin-top: 0; color: #2c3e50; }
+        .details p { margin: 6px 0; }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .btn:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div th:if="${property.imageUrl != null}">
+            <img th:src="@{${property.imageUrl}}" alt="Property Image"/>
+        </div>
+        <h2 th:text="${property.propertyName}"></h2>
+        <p><strong>Type:</strong> <span th:text="${property.propertyType}"></span></p>
+        <p><strong>Category:</strong> <span th:text="${property.propertyCategory}"></span></p>
+        <p><strong>Size:</strong> <span th:text="${property.squareFeet}"></span> sq.ft</p>
+        <p><strong>Rate:</strong> ₹<span th:text="${property.rate}"></span></p>
+        <p><strong>Location:</strong> 
+           <span th:text="${property.place + ', ' + property.city + ', ' + property.state + ' - ' + property.postalCode}"></span>
+        </p>
+        <p><strong>Amenities:</strong> <span th:text="${property.amenities}"></span></p>
+        <p><strong>Furnished:</strong> <span th:text="${property.furnished}"></span></p>
+        <p><strong>Built Year:</strong> <span th:text="${property.builtYear}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${property.description}"></span></p>
+        <p><strong>Land Owner:</strong> <span th:text="${property.landOwner}"></span></p>
+        <p><strong>Contact:</strong> <span th:text="${property.contact}"></span></p>
+
+        <a href="/buyer/home" class="btn">← Back to Listings</a>
+    </div>
+</body>
+</html>

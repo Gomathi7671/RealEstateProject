@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin - Sellers</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1f2937;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 25px;
+            padding: 10px 18px;
+            background-color: #1d4ed8;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn-back:hover {
+            background-color: #2563eb;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        /* Scrollable body */
+        .card-body {
+            padding: 15px;
+            flex-grow: 1;
+            max-height: 250px;   /* Adjust height */
+            overflow-y: auto;
+            scrollbar-width: thin;          
+            scrollbar-color: #9ca3af #f3f4f6; 
+        }
+
+        .card-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .card-body::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 6px;
+        }
+        .card-body::-webkit-scrollbar-thumb {
+            background-color: #9ca3af;
+            border-radius: 6px;
+        }
+        .card-body::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280;
+        }
+
+        .card-body h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: #1f2937;
+        }
+
+        .card-body p {
+            margin: 4px 0;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .card-body .desc {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .badge-type-sale { background-color: #10b981; }
+        .badge-type-rent { background-color: #f59e0b; }
+        .badge-category { background-color: #3b82f6; }
+        .badge-furnished-yes { background-color: #6366f1; }
+        .badge-furnished-no { background-color: #ef4444; }
+
+        .card-actions {
+            padding: 12px;
+            text-align: right;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-approve {
+            background-color: #10b981;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .btn-approve:hover {
+            background-color: #059669;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+<h2>Seller List</h2>
+
+<a th:href="@{/admin/dashboard}" class="btn-back">⬅ Back to Dashboard</a>
+
+<div class="grid-container">
+    <div class="card" th:each="seller : ${sellers}">
+        <img th:src="${seller.imageUrl}" alt="Property Image"/>
+        <div class="card-body">
+            <h3 th:text="${seller.propertyName}"></h3>
+            <p>
+                <strong>Type:</strong>
+                <span th:text="${seller.propertyType}"
+                      th:classappend="${seller.propertyType == 'Sale'} ? 'badge badge-type-sale' : 'badge badge-type-rent'"></span>
+            </p>
+            <p>
+                <strong>Category:</strong>
+                <span class="badge badge-category" th:text="${seller.propertyCategory}"></span>
+            </p>
+            <p><strong>Location:</strong> <span th:text="${seller.place}"></span>, <span th:text="${seller.city}"></span>, <span th:text="${seller.state}"></span></p>
+            <p><strong>Postal:</strong> <span th:text="${seller.postalCode}"></span></p>
+            <p><strong>Rate:</strong> ₹<span th:text="${seller.rate}"></span></p>
+            <p><strong>Sq.ft:</strong> <span th:text="${seller.squareFeet}"></span></p>
+            <p>
+                <strong>Furnished:</strong>
+                <span th:text="${seller.furnished}"
+                      th:classappend="${seller.furnished == 'Yes'} ? 'badge badge-furnished-yes' : 'badge badge-furnished-no'"></span>
+            </p>
+            <p><strong>Amenities:</strong> <span th:text="${seller.amenities}"></span></p>
+            <p><strong>Built:</strong> <span th:text="${seller.builtYear}"></span></p>
+            <p><strong>Contact:</strong> <span th:text="${seller.contact}"></span></p>
+            <p class="desc" th:text="${seller.description}"></p>
+        </div>
+        <div class="card-actions">
+            <a th:href="@{'/admin/approve/' + ${seller.id}}" class="btn-approve">Approve</a>
+            <a th:href="@{'/admin/delete/' + ${seller.id}}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
