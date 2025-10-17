@@ -59,7 +59,7 @@ public class AdminController {
 
    //  Approve a Seller → move to FinalEstate
 @GetMapping("/approve/{id}")
-public String approveSeller(@PathVariable Long id, Model model) {
+public String approveSeller(@PathVariable String id, Model model) {
     Seller seller = sellerRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Seller not found"));
 
@@ -95,7 +95,7 @@ public String approveSeller(@PathVariable Long id, Model model) {
 
 //  Delete Seller
 @GetMapping("/delete/{id}")
-public String deleteSeller(@PathVariable Long id, Model model) {
+public String deleteSeller(@PathVariable String id, Model model) {
     sellerRepository.deleteById(id);
 
     //  fetch updated approved list
@@ -106,7 +106,7 @@ public String deleteSeller(@PathVariable Long id, Model model) {
 }
 
 @GetMapping("/delete-approved/{id}")
-public String deleteApproved(@PathVariable Long id) {
+public String deleteApproved(@PathVariable String id) {
     finalEstateRepository.deleteById(id);
     return "redirect:/admin/dashboard/approved";
 }

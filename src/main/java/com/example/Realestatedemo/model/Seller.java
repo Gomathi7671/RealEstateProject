@@ -1,17 +1,17 @@
 package com.example.Realestatedemo.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+
+
+
+@Document(collection = "sellers")
 public class Seller {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+   
+    private String id;
 
     private String propertyName;
     private String propertyType; // Rent or Sale
@@ -21,7 +21,7 @@ public class Seller {
     private String landOwner;
     private String contact;
     private String imageUrl;
-    @Column(columnDefinition = "TEXT")  // Cloudinary URL
+//(columnDefinition = "TEXT")  // Cloudinary URL
     private String description; // Optional property description
     private String status; // Pending, Approved, Rejected
     private String city;
@@ -33,8 +33,8 @@ public class Seller {
     private String builtYear; // Year of construction
 
     // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getPropertyName() { return propertyName; }
     public void setPropertyName(String propertyName) { this.propertyName = propertyName; }

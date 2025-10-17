@@ -33,7 +33,7 @@ class BuyerControllerTest {
     @Test
     void testGetAllProperties() throws Exception {
         FinalEstate property = new FinalEstate();
-        property.setId(1L);
+        property.setId("1");
         property.setPlace("Chennai");
 
         Mockito.when(finalEstateRepository.findAll())
@@ -50,10 +50,10 @@ class BuyerControllerTest {
     @Test
     void testViewProperty() throws Exception {
         FinalEstate property = new FinalEstate();
-        property.setId(1L);
+        property.setId("1");
         property.setPlace("Chennai");
 
-        Mockito.when(finalEstateRepository.findById(1L))
+        Mockito.when(finalEstateRepository.findById("1"))
                 .thenReturn(Optional.of(property));
 
         mockMvc.perform(get("/buyer/view/1"))
@@ -67,7 +67,7 @@ class BuyerControllerTest {
     @Test
     void testSearchProperties() throws Exception {
         FinalEstate property = new FinalEstate();
-        property.setId(2L);
+        property.setId("1");
         property.setPlace("Bangalore");
 
         Mockito.when(finalEstateRepository.searchProperties("Bangalore", null, null, null, null))

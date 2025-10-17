@@ -1,10 +1,13 @@
 package com.example.Realestatedemo.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+
 import lombok.*;
 
-@Entity
-@Table(name = "users_realestate")
+
+@Document(collection = "users_realestate") // MongoDB collection name
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,13 +15,13 @@ import lombok.*;
 public class Users_Realestate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+   
+    private String id;
 
     private String name;
     private String email;
     private String password;
 
-    @Enumerated(EnumType.STRING)
+  //  @Enumerated(EnumType.STRING)
     private Role role; // SELLER, CUSTOMER, ADMIN
 }

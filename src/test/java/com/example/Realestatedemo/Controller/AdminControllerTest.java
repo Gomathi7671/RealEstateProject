@@ -76,16 +76,16 @@ class AdminControllerTest {
     @Test
     void testApproveSeller() throws Exception {
         Seller seller = new Seller();
-        seller.setId(1L);
+        seller.setId("1");
         seller.setPropertyName("Test Property");
-        when(sellerRepository.findById(1L)).thenReturn(Optional.of(seller));
+        when(sellerRepository.findById("1")).thenReturn(Optional.of(seller));
 
         mockMvc.perform(get("/admin/approve/1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/dashboard/sellers"));
 
         verify(finalEstateRepository).save(any(FinalEstate.class));
-        verify(sellerRepository).deleteById(1L);
+        verify(sellerRepository).deleteById("1");
     }
 
     //  Delete Seller
@@ -95,7 +95,7 @@ class AdminControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/dashboard/sellers"));
 
-        verify(sellerRepository).deleteById(2L);
+        verify(sellerRepository).deleteById("2");
     }
 
     //  Delete Approved
@@ -105,6 +105,6 @@ class AdminControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/dashboard/approved"));
 
-        verify(finalEstateRepository).deleteById(3L);
+        verify(finalEstateRepository).deleteById("3");
     }
 }

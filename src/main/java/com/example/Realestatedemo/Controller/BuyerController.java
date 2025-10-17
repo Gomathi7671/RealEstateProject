@@ -27,7 +27,7 @@ public class BuyerController {
 
     // Show property details
     @GetMapping("/buyer/view/{id}")
-    public String viewProperty(@PathVariable Long id, Model model) {
+    public String viewProperty(@PathVariable String id, Model model) {
         FinalEstate property = finalEstateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Property not found: " + id));
         model.addAttribute("property", property);
