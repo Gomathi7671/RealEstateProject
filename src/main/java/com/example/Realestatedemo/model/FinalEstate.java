@@ -1,14 +1,18 @@
 package com.example.Realestatedemo.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-@Document(collection = "final_estates")  // MongoDB collection name
+
+
+@Entity
 public class FinalEstate {
 
     @Id
-    private String id;  // MongoDB uses String (ObjectId internally)
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long  id;  
     private String propertyName;
     private String propertyType;       // Rent or Sale
     private String squareFeet;
@@ -27,8 +31,8 @@ public class FinalEstate {
     private String imageUrl;           // Cloudinary URL
 
     // Getters & Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getPropertyName() { return propertyName; }
     public void setPropertyName(String propertyName) { this.propertyName = propertyName; }

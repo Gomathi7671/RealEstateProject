@@ -1,13 +1,14 @@
 package com.example.Realestatedemo.model;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Id;
 
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.*;
 
 
-@Document(collection = "users_realestate") // MongoDB collection name
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,8 +16,8 @@ import lombok.*;
 public class Users_Realestate {
 
     @Id
-   
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
     private String email;
