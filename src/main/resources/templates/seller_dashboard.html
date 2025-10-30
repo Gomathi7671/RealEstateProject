@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Seller Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .add-btn, .home-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+        .add-btn {
+            background: #3498db;
+        }
+        .add-btn:hover {
+            background: #2980b9;
+        }
+        .home-btn {
+            background: #2ecc71;
+        }
+        .home-btn:hover {
+            background: #27ae60;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background: #f1f1f1;
+        }
+        .delete-btn {
+            padding: 5px 10px;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        img.property-img {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Seller Dashboard</h2>
+        <div class="button-container">
+            <a class="add-btn" th:href="@{/seller/upload}">Add New Property</a>
+            <a class="home-btn" th:href="@{/}">Back to Home</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Property Name</th>
+                    <th>Type</th>
+                    <th>Rate</th>
+                    <th>City</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="property : ${properties}">
+                    <td>
+                        <img th:src="${property.imageUrl}" alt="Property Image" class="property-img"/>
+                    </td>
+                    <td th:text="${property.propertyName}"></td>
+                    <td th:text="${property.propertyType}"></td>
+                    <td th:text="${property.rate}"></td>
+                    <td th:text="${property.city}"></td>
+                    <td>
+                        <a th:href="@{'/seller/delete/' + ${property.id}}" class="delete-btn">Delete</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

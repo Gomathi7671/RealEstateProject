@@ -1,20 +1,28 @@
 package com.example.Realestatedemo.Controller;
 
-import com.example.Realestatedemo.model.FinalEstate;
+import com.example.Realestatedemo.exception.ResourceNotFoundException;
 import com.example.Realestatedemo.model.Seller;
-import com.example.Realestatedemo.repository.FinalEstateRepository;
+import com.example.Realestatedemo.model.FinalEstate;
 import com.example.Realestatedemo.repository.SellerRepository;
+import com.example.Realestatedemo.repository.FinalEstateRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AdminControllerTest {
+
+    @InjectMocks
+    private AdminController adminController;
 
     @Mock
     private SellerRepository sellerRepository;
@@ -25,99 +33,111 @@ class AdminControllerTest {
     @Mock
     private Model model;
 
-    @InjectMocks
-    private AdminController adminController;
+    private Seller seller1;
+    private FinalEstate finalEstate1;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        seller1 = new Seller();
+        seller1.setId(1L);
+        seller1.setPropertyName("Test Property");
+        seller1.setCity("Test City");
+
+        finalEstate1 = new FinalEstate();
+        finalEstate1.setId(1L);
+        finalEstate1.setPropertyName("Approved Property");
     }
 
-    // ✅ Test: Dashboard Home
+    // -------------------- Dashboard Home --------------------
     @Test
     void testDashboardHome() {
         when(sellerRepository.count()).thenReturn(5L);
-        when(finalEstateRepository.count()).thenReturn(3L);
+        when(finalEstateRepository.count()).thenReturn(10L);
 
-        String viewName = adminController.dashboardHome(model);
+        String view = adminController.dashboardHome(model);
 
-        assertEquals("admin_dashboard", viewName);
-        verify(model).addAttribute("totalSellers", 5L);
-        verify(model).addAttribute("totalApproved", 3L);
-        verify(model).addAttribute("content", "admin_dashboard_home");
+        assertEquals("admin_dashboard", view);
+        verify(model, times(1)).addAttribute("totalSellers", 5L);
+        verify(model, times(1)).addAttribute("totalApproved", 10L);
     }
 
-    // ✅ Test: Sellers Page
+    // -------------------- Sellers Page --------------------
     @Test
     void testSellersPage() {
-        List<Seller> sellers = List.of(new Seller());
-        when(sellerRepository.findAll()).thenReturn(sellers);
+        when(sellerRepository.findAll()).thenReturn(Arrays.asList(seller1));
 
-        String viewName = adminController.sellersPage(model);
+        String view = adminController.sellersPage(model);
 
-        assertEquals("admin_sellers", viewName);
-        verify(model).addAttribute("sellers", sellers);
-        verify(model).addAttribute("content", "admin_sellers");
+        assertEquals("admin_sellers", view);
+        verify(model, times(1)).addAttribute("sellers", Arrays.asList(seller1));
     }
 
-    // ✅ Test: Approved Page
+    // -------------------- Approve Seller --------------------
     @Test
-    void testApprovedPage() {
-        List<FinalEstate> estates = List.of(new FinalEstate());
-        when(finalEstateRepository.findAll()).thenReturn(estates);
+    void testApproveSellerSuccess() {
+        when(sellerRepository.findById(1L)).thenReturn(Optional.of(seller1));
 
-        String viewName = adminController.approvedPage(model);
+        String view = adminController.approveSeller(1L, model);
 
-        assertEquals("admin_approved", viewName);
-        verify(model).addAttribute("approved", estates);
-        verify(model).addAttribute("content", "admin_approved");
+        assertEquals("redirect:/admin/dashboard/sellers", view);
+        verify(finalEstateRepository, times(1)).save(any(FinalEstate.class));
+        verify(sellerRepository, times(1)).deleteById(1L);
     }
 
-    // ✅ Test: Approve Seller
     @Test
-    void testApproveSeller() {
-        Seller seller = new Seller();
-        seller.setId(1L);
-        seller.setPropertyName("Dream Villa");
-        when(sellerRepository.findById(1L)).thenReturn(Optional.of(seller));
+    void testApproveSellerNotFound() {
+        when(sellerRepository.findById(2L)).thenReturn(Optional.empty());
 
-        String viewName = adminController.approveSeller(1L, model);
+        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () -> {
+            adminController.approveSeller(2L, model);
+        });
 
-        assertEquals("redirect:/admin/dashboard/sellers", viewName);
-        verify(finalEstateRepository).save(any(FinalEstate.class));
-        verify(sellerRepository).deleteById(1L);
+        assertTrue(thrown.getMessage().contains("Seller not found with ID: 2"));
     }
 
-    // ✅ Test: Approve Seller Not Found
+    // -------------------- Delete Seller --------------------
     @Test
-    void testApproveSeller_NotFound() {
-        when(sellerRepository.findById(999L)).thenReturn(Optional.empty());
+    void testDeleteSellerSuccess() {
+        when(sellerRepository.existsById(1L)).thenReturn(true);
 
-        RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> adminController.approveSeller(999L, model));
+        String view = adminController.deleteSeller(1L);
 
-        assertEquals("Seller not found", exception.getMessage());
+        assertEquals("redirect:/admin/dashboard/sellers", view);
+        verify(sellerRepository, times(1)).deleteById(1L);
     }
 
-    // ✅ Test: Delete Seller
     @Test
-    void testDeleteSeller() {
-        List<FinalEstate> estates = List.of(new FinalEstate());
-        when(finalEstateRepository.findAll()).thenReturn(estates);
+    void testDeleteSellerNotFound() {
+        when(sellerRepository.existsById(2L)).thenReturn(false);
 
-        String viewName = adminController.deleteSeller(5L, model);
+        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () -> {
+            adminController.deleteSeller(2L);
+        });
 
-        assertEquals("redirect:/admin/dashboard/sellers", viewName);
-        verify(sellerRepository).deleteById(5L);
-        verify(model).addAttribute("approvedList", estates);
+        assertTrue(thrown.getMessage().contains("Seller not found with ID: 2"));
     }
 
-    // ✅ Test: Delete Approved
+    // -------------------- Delete Approved Property --------------------
     @Test
-    void testDeleteApproved() {
-        String viewName = adminController.deleteApproved(7L);
+    void testDeleteApprovedSuccess() {
+        when(finalEstateRepository.existsById(1L)).thenReturn(true);
 
-        assertEquals("redirect:/admin/dashboard/approved", viewName);
-        verify(finalEstateRepository).deleteById(7L);
+        String view = adminController.deleteApproved(1L);
+
+        assertEquals("redirect:/admin/dashboard/approved", view);
+        verify(finalEstateRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testDeleteApprovedNotFound() {
+        when(finalEstateRepository.existsById(2L)).thenReturn(false);
+
+        ResourceNotFoundException thrown = assertThrows(ResourceNotFoundException.class, () -> {
+            adminController.deleteApproved(2L);
+        });
+
+        assertTrue(thrown.getMessage().contains("Approved property not found with ID: 2"));
     }
 }

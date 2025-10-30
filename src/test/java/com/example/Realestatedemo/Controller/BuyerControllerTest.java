@@ -1,18 +1,28 @@
 package com.example.Realestatedemo.Controller;
 
+import com.example.Realestatedemo.exception.PropertyNotFoundException;
 import com.example.Realestatedemo.model.FinalEstate;
 import com.example.Realestatedemo.repository.FinalEstateRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class BuyerControllerTest {
+
+    @InjectMocks
+    private BuyerController buyerController;
 
     @Mock
     private FinalEstateRepository finalEstateRepository;
@@ -20,79 +30,84 @@ class BuyerControllerTest {
     @Mock
     private Model model;
 
-    @InjectMocks
-    private BuyerController buyerController;
+    private FinalEstate property1;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        property1 = new FinalEstate();
+        property1.setId(1L);
+        property1.setPropertyName("Test Property");
+        property1.setCity("Test City");
     }
 
-    // ✅ Test: getAllProperties()
+    // -------------------- Get All Properties --------------------
     @Test
     void testGetAllProperties() {
-        List<FinalEstate> mockList = List.of(new FinalEstate(), new FinalEstate());
-        when(finalEstateRepository.findAll()).thenReturn(mockList);
+        List<FinalEstate> properties = Arrays.asList(property1);
+        when(finalEstateRepository.findAll()).thenReturn(properties);
 
-        String viewName = buyerController.getAllProperties(model);
+        String view = buyerController.getAllProperties(model);
 
-        assertEquals("buyer", viewName);
-        verify(finalEstateRepository, times(1)).findAll();
-        verify(model).addAttribute("properties", mockList);
+        assertEquals("buyer", view);
+        verify(model, times(1)).addAttribute("properties", properties);
     }
 
-    // ✅ Test: viewProperty()
+    // -------------------- View Property --------------------
     @Test
-    void testViewProperty() {
-        FinalEstate mockEstate = new FinalEstate();
-        mockEstate.setId(1L);
-        mockEstate.setPropertyName("Dream Villa");
+    void testViewPropertySuccess() {
+        when(finalEstateRepository.findById(1L)).thenReturn(Optional.of(property1));
 
-        when(finalEstateRepository.findById(1L)).thenReturn(Optional.of(mockEstate));
+        String view = buyerController.viewProperty(1L, model);
 
-        String viewName = buyerController.viewProperty(1L, model);
-
-        assertEquals("buyer_view", viewName);
-        verify(model).addAttribute("property", mockEstate);
+        assertEquals("buyer_view", view);
+        verify(model, times(1)).addAttribute("property", property1);
     }
 
-    // ✅ Test: viewProperty() when property not found
     @Test
-    void testViewProperty_NotFound() {
-        when(finalEstateRepository.findById(99L)).thenReturn(Optional.empty());
+    void testViewPropertyNotFound() {
+        when(finalEstateRepository.findById(2L)).thenReturn(Optional.empty());
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            buyerController.viewProperty(99L, model);
+        PropertyNotFoundException thrown = assertThrows(PropertyNotFoundException.class, () -> {
+            buyerController.viewProperty(2L, model);
         });
 
-        assertEquals("Property not found: 99", exception.getMessage());
+        assertTrue(thrown.getMessage().contains("Property not found with ID: 2"));
     }
 
-    // ✅ Test: searchProperties() with filters
+    // -------------------- Search Properties --------------------
     @Test
-    void testSearchProperties_WithFilters() {
-        List<FinalEstate> mockList = List.of(new FinalEstate());
-        when(finalEstateRepository.searchProperties("Chennai", "Apartment", "For Sale", 1000000.0, 5000000.0))
-                .thenReturn(mockList);
+    void testSearchPropertiesSuccess() {
+        List<FinalEstate> properties = Arrays.asList(property1);
+        when(finalEstateRepository.searchProperties(
+                eq("Test City"),
+                eq("Rent"),
+                eq("Apartment"),
+                eq(500.0),
+                eq(1000.0)
+        )).thenReturn(properties);
 
-        String viewName = buyerController.searchProperties("Chennai", "Apartment", "For Sale",
-                1000000.0, 5000000.0, model);
+        String view = buyerController.searchProperties("Test City", "Rent", "Apartment", 500.0, 1000.0, model);
 
-        assertEquals("buyer", viewName);
-        verify(finalEstateRepository).searchProperties("Chennai", "Apartment", "For Sale", 1000000.0, 5000000.0);
-        verify(model).addAttribute("properties", mockList);
+        assertEquals("buyer", view);
+        verify(model, times(1)).addAttribute("properties", properties);
     }
 
-    // ✅ Test: searchProperties() with null filters
     @Test
-    void testSearchProperties_WithNullFilters() {
-        List<FinalEstate> mockList = List.of(new FinalEstate());
-        when(finalEstateRepository.searchProperties(null, null, null, null, null)).thenReturn(mockList);
+    void testSearchPropertiesNoResults() {
+        when(finalEstateRepository.searchProperties(
+                anyString(),
+                anyString(),
+                anyString(),
+                any(),
+                any()
+        )).thenReturn(Collections.emptyList());
 
-        String viewName = buyerController.searchProperties("", "", "", null, null, model);
+        PropertyNotFoundException thrown = assertThrows(PropertyNotFoundException.class, () -> {
+            buyerController.searchProperties("City", "Sale", "House", 100.0, 200.0, model);
+        });
 
-        assertEquals("buyer", viewName);
-        verify(finalEstateRepository).searchProperties(null, null, null, null, null);
-        verify(model).addAttribute("properties", mockList);
+        assertTrue(thrown.getMessage().contains("No properties found matching your criteria."));
     }
 }

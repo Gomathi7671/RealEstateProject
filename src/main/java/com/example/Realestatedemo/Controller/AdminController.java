@@ -1,16 +1,15 @@
 package com.example.Realestatedemo.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import com.example.Realestatedemo.exception.ResourceNotFoundException;
 import com.example.Realestatedemo.model.Seller;
 import com.example.Realestatedemo.model.FinalEstate;
 import com.example.Realestatedemo.repository.SellerRepository;
 import com.example.Realestatedemo.repository.FinalEstateRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,91 +23,78 @@ public class AdminController {
     @Autowired
     private FinalEstateRepository finalEstateRepository;
 
-    //  Dashboard Home (summary only)
+    // Dashboard Home
     @GetMapping("/dashboard")
     public String dashboardHome(Model model) {
-        long totalSellers = sellerRepository.count();
-        long totalApproved = finalEstateRepository.count();
-
-        model.addAttribute("totalSellers", totalSellers);
-        model.addAttribute("totalApproved", totalApproved);
-        model.addAttribute("content", "admin_dashboard_home"); // injects fragment
-
+        model.addAttribute("totalSellers", sellerRepository.count());
+        model.addAttribute("totalApproved", finalEstateRepository.count());
         return "admin_dashboard";
     }
 
-    
-
-    //  Show Sellers
+    // Show Sellers
     @GetMapping("/dashboard/sellers")
     public String sellersPage(Model model) {
         List<Seller> sellers = sellerRepository.findAll();
         model.addAttribute("sellers", sellers);
-        model.addAttribute("content", "admin_sellers");
         return "admin_sellers";
     }
 
-    //  Show Approved Properties
+    // Show Approved Properties
     @GetMapping("/dashboard/approved")
     public String approvedPage(Model model) {
         List<FinalEstate> approved = finalEstateRepository.findAll();
         model.addAttribute("approved", approved);
-        model.addAttribute("content", "admin_approved");
         return "admin_approved";
     }
 
-   //  Approve a Seller → move to FinalEstate
-@GetMapping("/approve/{id}")
-public String approveSeller(@PathVariable Long id, Model model) {
-    Seller seller = sellerRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Seller not found"));
+    // Approve Seller → move to FinalEstate
+    @GetMapping("/approve/{id}")
+    public String approveSeller(@PathVariable Long id, Model model) {
+        Seller seller = sellerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found with ID: " + id));
 
-    FinalEstate finalEstate = new FinalEstate();
-    finalEstate.setPropertyName(seller.getPropertyName());
-    finalEstate.setPropertyType(seller.getPropertyType());
-    finalEstate.setSquareFeet(seller.getSquareFeet());
-    finalEstate.setRate(seller.getRate());
-    finalEstate.setPlace(seller.getPlace());
-    finalEstate.setCity(seller.getCity());
-    finalEstate.setState(seller.getState());
-    finalEstate.setPostalCode(seller.getPostalCode());
-    finalEstate.setPropertyCategory(seller.getPropertyCategory());
-    finalEstate.setAmenities(seller.getAmenities());
-    finalEstate.setFurnished(seller.getFurnished());
-    finalEstate.setBuiltYear(seller.getBuiltYear());
-    finalEstate.setDescription(seller.getDescription());
-    finalEstate.setLandOwner(seller.getLandOwner());
-    finalEstate.setContact(seller.getContact());
-    finalEstate.setImageUrl(seller.getImageUrl());
+        FinalEstate finalEstate = new FinalEstate();
+        finalEstate.setPropertyName(seller.getPropertyName());
+        finalEstate.setPropertyType(seller.getPropertyType());
+        finalEstate.setSquareFeet(seller.getSquareFeet());
+        finalEstate.setRate(seller.getRate());
+        finalEstate.setPlace(seller.getPlace());
+        finalEstate.setCity(seller.getCity());
+        finalEstate.setState(seller.getState());
+        finalEstate.setPostalCode(seller.getPostalCode());
+        finalEstate.setPropertyCategory(seller.getPropertyCategory());
+        finalEstate.setAmenities(seller.getAmenities());
+        finalEstate.setFurnished(seller.getFurnished());
+        finalEstate.setBuiltYear(seller.getBuiltYear());
+        finalEstate.setDescription(seller.getDescription());
+        finalEstate.setLandOwner(seller.getLandOwner());
+        finalEstate.setContact(seller.getContact());
+        finalEstate.setImageUrl(seller.getImageUrl());
 
-    // save into final table
-    finalEstateRepository.save(finalEstate);
+        finalEstateRepository.save(finalEstate);
+        sellerRepository.deleteById(id);
 
-    // delete from seller table
-    sellerRepository.deleteById(id);
+        model.addAttribute("approvedList", finalEstateRepository.findAll());
+        return "redirect:/admin/dashboard/sellers";
+    }
 
-    //  fetch approved properties
-    model.addAttribute("approvedList", finalEstateRepository.findAll());
-  //  Redirect back to Sellers page
-    return "redirect:/admin/dashboard/sellers";
-}
+    // Delete Seller
+    @GetMapping("/delete/{id}")
+    public String deleteSeller(@PathVariable Long id) {
+        if (!sellerRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Seller not found with ID: " + id);
+        }
+        sellerRepository.deleteById(id);
+        return "redirect:/admin/dashboard/sellers";
+    }
 
-//  Delete Seller
-@GetMapping("/delete/{id}")
-public String deleteSeller(@PathVariable Long id, Model model) {
-    sellerRepository.deleteById(id);
-
-    //  fetch updated approved list
-    model.addAttribute("approvedList", finalEstateRepository.findAll());
-
-     //  Redirect back to Sellers page
-    return "redirect:/admin/dashboard/sellers";
-}
-
-@GetMapping("/delete-approved/{id}")
-public String deleteApproved(@PathVariable Long id) {
-    finalEstateRepository.deleteById(id);
-    return "redirect:/admin/dashboard/approved";
-}
-
+    // Delete Approved Property
+    @GetMapping("/delete-approved/{id}")
+    public String deleteApproved(@PathVariable Long id) {
+        if (!finalEstateRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Approved property not found with ID: " + id);
+        }
+        finalEstateRepository.deleteById(id);
+        return "redirect:/admin/dashboard/approved";
+    }
 }

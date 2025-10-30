@@ -1,15 +1,7 @@
 package com.example.Realestatedemo.model;
 
-import jakarta.persistence.Id;
-
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
-
-
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class Seller {
@@ -18,26 +10,53 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Property name is required")
     private String propertyName;
+
+    @NotBlank(message = "Property type is required")
     private String propertyType; // Rent or Sale
+
+    @NotBlank(message = "Square feet is required")
     private String squareFeet;
+
+    @NotNull(message = "Rate is required")
     private Double rate;
+
+    @NotBlank(message = "Place is required")
     private String place;
+
+    @NotBlank(message = "Land owner is required")
     private String landOwner;
+
+    @NotBlank(message = "Contact is required")
     private String contact;
-    private String imageUrl;
-//(columnDefinition = "TEXT")  // Cloudinary URL
-    private String description; // Optional property description
-    private String status; // Pending, Approved, Rejected
+
+    private String imageUrl; // Cloudinary URL
+
+    @Column(columnDefinition = "TEXT")
+    private String description; // Optional
+
+    private String status = "Pending"; // Default status
+
+    @NotBlank(message = "City is required")
     private String city;
+
+    @NotBlank(message = "State is required")
     private String state;
+
+    @NotBlank(message = "Postal code is required")
     private String postalCode;
-    private String propertyCategory; // e.g., Apartment, House, Land
-    private String amenities; // e.g., Pool, Parking, Gym
+
+    @NotBlank(message = "Property category is required")
+    private String propertyCategory; // Apartment, House, Land
+
+    private String amenities; // Pool, Parking, Gym
+
     private String furnished; // Yes/No
+
     private String builtYear; // Year of construction
 
-    // Getters & Setters
+    // ===== Getters and Setters =====
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

@@ -1,22 +1,28 @@
 package com.example.Realestatedemo.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "final_estate")
 public class FinalEstate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long  id;  
+    private Long id;  
+
+    @NotBlank
     private String propertyName;
+
+    @NotBlank
     private String propertyType;       // Rent or Sale
+
     private String squareFeet;
+
+    @NotNull
     private Double rate;
+
     private String place;
     private String city;
     private String state;
@@ -30,7 +36,12 @@ public class FinalEstate {
     private String contact;
     private String imageUrl;           // Cloudinary URL
 
-    // Getters & Setters
+    // ----------------- Mapping to Seller -----------------
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id")
+    private Users_Realestate seller;
+
+    // ----------------- Getters & Setters -----------------
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -81,4 +92,7 @@ public class FinalEstate {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public Users_Realestate getSeller() { return seller; }
+    public void setSeller(Users_Realestate seller) { this.seller = seller; }
 }
