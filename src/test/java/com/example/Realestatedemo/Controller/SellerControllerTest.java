@@ -1,84 +1,101 @@
-//  package com.example.Realestatedemo.Controller;
+package com.example.Realestatedemo.Controller;
 
-// import com.example.Realestatedemo.model.Seller;
-// import com.example.Realestatedemo.repository.SellerRepository;
-// import com.example.Realestatedemo.service.CloudinaryService;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.Mockito;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.mock.web.MockMultipartFile;
-// import org.springframework.test.web.servlet.MockMvc;
+import com.example.Realestatedemo.model.Seller;
+import com.example.Realestatedemo.repository.SellerRepository;
+import com.example.Realestatedemo.service.CloudinaryService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.ui.Model;
 
-// import java.util.HashMap;
-// import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-// @WebMvcTest(SellerController.class)
-// @AutoConfigureMockMvc(addFilters = false) // disable Spring Security
-// class SellerControllerTest {
+class SellerControllerTest {
 
-//     @Autowired
-//     private MockMvc mockMvc;
+    @Mock
+    private SellerRepository sellerRepository;
 
-//     @MockBean
-//     private SellerRepository sellerRepository;
+    @Mock
+    private CloudinaryService cloudinaryService;
 
-//     @MockBean
-//     private CloudinaryService cloudinaryService;
+    @Mock
+    private Model model;
 
-//     // 🔹 Test GET /seller/upload
-//     @Test
-//     void testShowUploadForm() throws Exception {
-//         mockMvc.perform(get("/seller/upload"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("seller_form"))
-//                 .andExpect(model().attributeExists("seller"));
-//     }
+    @InjectMocks
+    private SellerController sellerController;
 
-//     // 🔹 Test POST /seller/save with file
-//     @Test
-//     void testSavePropertyWithFile() throws Exception {
-//         MockMultipartFile mockFile =
-//                 new MockMultipartFile("image", "test.jpg", "image/jpeg", "fake-image-data".getBytes());
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-//         Map<String, Object> uploadResult = new HashMap<>();
-//         uploadResult.put("secure_url", "http://cloudinary.com/test.jpg");
+    // ✅ Test: showUploadForm()
+    @Test
+    void testShowUploadForm() {
+        String viewName = sellerController.showUploadForm(model);
 
-//         Mockito.when(cloudinaryService.uploadFile(any())).thenReturn(uploadResult);
+        assertEquals("seller_form", viewName);
+        verify(model).addAttribute(eq("seller"), any(Seller.class));
+    }
 
-//         mockMvc.perform(multipart("/seller/save")
-//                         .file(mockFile)
-//                         .param("name", "Test Seller")
-//                         .param("place", "Chennai"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("success"));
+    // ✅ Test: saveProperty() — with image upload success
+    @Test
+    void testSaveProperty_WithImage() throws Exception {
+        Seller seller = new Seller();
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "image",
+                "house.jpg",
+                "image/jpeg",
+                "fake-image".getBytes()
+        );
 
-//         Mockito.verify(cloudinaryService).uploadFile(any());
-//         Mockito.verify(sellerRepository).save(any(Seller.class));
-//     }
+        Map<String, Object> uploadResult = new HashMap<>();
+        uploadResult.put("secure_url", "https://cloudinary.com/image/house.jpg");
 
-//     // 🔹 Test POST /seller/save without file
-//     @Test
-//     void testSavePropertyWithoutFile() throws Exception {
-//         MockMultipartFile emptyFile =
-//                 new MockMultipartFile("image", "", "image/jpeg", new byte[0]);
+        when(cloudinaryService.uploadFile(mockFile)).thenReturn(uploadResult);
 
-//         mockMvc.perform(multipart("/seller/save")
-//                         .file(emptyFile)
-//                         .param("name", "Test Seller")
-//                         .param("place", "Mumbai"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("success"));
+        String viewName = sellerController.saveProperty(seller, mockFile, model);
 
-//         Mockito.verify(sellerRepository).save(any(Seller.class));
-//         Mockito.verify(cloudinaryService, Mockito.never()).uploadFile(any());
-//     }
-// }
- 
+        assertEquals("success", viewName);
+        assertEquals("https://cloudinary.com/image/house.jpg", seller.getImageUrl());
+        verify(sellerRepository).save(seller);
+        verify(cloudinaryService).uploadFile(mockFile);
+    }
+
+    // ✅ Test: saveProperty() — with empty file
+    @Test
+    void testSaveProperty_WithEmptyFile() throws Exception {
+        Seller seller = new Seller();
+        MockMultipartFile emptyFile = new MockMultipartFile("image", new byte[0]); // empty file
+
+        String viewName = sellerController.saveProperty(seller, emptyFile, model);
+
+        assertEquals("success", viewName);
+        verify(sellerRepository).save(seller);
+        verify(cloudinaryService, never()).uploadFile(any());
+    }
+
+    // ✅ Test: saveProperty() — with exception
+    @Test
+    void testSaveProperty_WithException() throws Exception {
+        Seller seller = new Seller();
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "image",
+                "house.jpg",
+                "image/jpeg",
+                "fake-image".getBytes()
+        );
+
+        when(cloudinaryService.uploadFile(mockFile)).thenThrow(new RuntimeException("Cloudinary error"));
+
+        String viewName = sellerController.saveProperty(seller, mockFile, model);
+
+        assertEquals("error", viewName);
+        verify(model).addAttribute(eq("errorMessage"), contains("Error saving property"));
+    }
+}

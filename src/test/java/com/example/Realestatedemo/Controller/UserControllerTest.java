@@ -1,89 +1,93 @@
-// package com.example.Realestatedemo.Controller;
+package com.example.Realestatedemo.Controller;
 
-// import com.example.Realestatedemo.model.Users_Realestate;
-// import com.example.Realestatedemo.repository.Realestaterepository;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.test.web.servlet.MockMvc;
+import com.example.Realestatedemo.model.Role;
+import com.example.Realestatedemo.model.Users_Realestate;
+import com.example.Realestatedemo.repository.Realestaterepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.Model;
 
-// import java.util.Optional;
+import java.util.Optional;
 
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.mockito.Mockito.when;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-// // @WebMvcTest(UserController.class)
-// // @AutoConfigureMockMvc(addFilters = false)
-// class UserControllerTest {
+class UserControllerTest {
 
-//     @Autowired
-//     private MockMvc mockMvc;
+    @Mock
+    private Realestaterepository userRepository;
 
-//     @MockBean
-//     private Realestaterepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
-//     @MockBean
-//     private PasswordEncoder passwordEncoder;
+    @Mock
+    private Model model;
 
-//     @Test
-//     void testLoginPage() throws Exception {
-//         mockMvc.perform(get("/login"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("login"));
-//     }
+    @InjectMocks
+    private UserController userController;
 
-//     @Test
-//     void testRegisterPage() throws Exception {
-//         mockMvc.perform(get("/register"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("register"))
-//                 .andExpect(model().attributeExists("user"));
-//     }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-//     @Test
-//     void testRegister_NewUser_Success() throws Exception {
-//         Users_Realestate user = new Users_Realestate();
-//         user.setEmail("test@example.com");
-//         user.setPassword("plainpass");
+    // ✅ Test: login page
+    @Test
+    void testLoginPage() {
+        String viewName = userController.loginPage();
+        assertEquals("login", viewName);
+    }
 
-//         // Mock repository and encoder
-//         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
-//         when(passwordEncoder.encode("plainpass")).thenReturn("encodedpass");
-//         when(userRepository.save(any(Users_Realestate.class))).thenReturn(user);
+    // ✅ Test: register page
+    @Test
+    void testRegisterPage() {
+        String viewName = userController.registerPage(model);
 
-//         mockMvc.perform(post("/register")
-//                         .param("email", "test@example.com")
-//                         .param("password", "plainpass"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("login"))
-//                 .andExpect(model().attributeExists("success"));
-//     }
+        assertEquals("register", viewName);
+        verify(model).addAttribute(eq("user"), any(Users_Realestate.class));
+    }
 
-//     @Test
-//     void testRegister_EmailAlreadyExists() throws Exception {
-//         Users_Realestate existingUser = new Users_Realestate();
-//         existingUser.setEmail("duplicate@example.com");
+    // ✅ Test: successful registration
+    @Test
+    void testRegister_Success() {
+        Users_Realestate user = new Users_Realestate();
+        user.setEmail("test@example.com");
+        user.setPassword("plain123");
 
-//         when(userRepository.findByEmail("duplicate@example.com")).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("plain123")).thenReturn("encoded123");
 
-//         mockMvc.perform(post("/register")
-//                         .param("email", "duplicate@example.com")
-//                         .param("password", "secret"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("register"))
-//                 .andExpect(model().attributeExists("error"));
-//     }
+        String viewName = userController.register(user, model);
 
-//     @Test
-//     void testHomePage() throws Exception {
-//         mockMvc.perform(get("/"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("index"));
-//     }
-// }
+        assertEquals("login", viewName);
+        assertEquals("encoded123", user.getPassword());
+        assertEquals(Role.CUSTOMER, user.getRole()); // Default role
+        verify(userRepository).save(user);
+        verify(model).addAttribute("success", "Registration successful! Please login.");
+    }
+
+    // ✅ Test: registration fails when email already exists
+    @Test
+    void testRegister_EmailExists() {
+        Users_Realestate user = new Users_Realestate();
+        user.setEmail("existing@example.com");
+
+        when(userRepository.findByEmail("existing@example.com"))
+                .thenReturn(Optional.of(new Users_Realestate()));
+
+        String viewName = userController.register(user, model);
+
+        assertEquals("register", viewName);
+        verify(model).addAttribute("error", "Email already exists!");
+        verify(userRepository, never()).save(any());
+    }
+
+    // ✅ Test: home page
+    @Test
+    void testHomePage() {
+        String viewName = userController.home();
+        assertEquals("index", viewName);
+    }
+}

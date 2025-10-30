@@ -1,110 +1,123 @@
-// package com.example.Realestatedemo.Controller;
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.mockito.Mockito.verify;
-// import static org.mockito.Mockito.when;
-// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-// import java.util.Arrays;
-// import java.util.Optional;
-// import org.junit.jupiter.api.Test;
-// import org.springframework.beans.factory.annotation.Autowired;
-// // import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-// // import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.test.web.servlet.MockMvc;
+package com.example.Realestatedemo.Controller;
 
-// import com.example.Realestatedemo.model.FinalEstate;
-// import com.example.Realestatedemo.model.Seller;
-// import com.example.Realestatedemo.repository.FinalEstateRepository;
-// import com.example.Realestatedemo.repository.SellerRepository;
+import com.example.Realestatedemo.model.FinalEstate;
+import com.example.Realestatedemo.model.Seller;
+import com.example.Realestatedemo.repository.FinalEstateRepository;
+import com.example.Realestatedemo.repository.SellerRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.ui.Model;
 
-// // @WebMvcTest(AdminController.class)
-// // @AutoConfigureMockMvc(addFilters = false) // disable Spring Security
-// class AdminControllerTest {
+import java.util.*;
 
-//     @Autowired
-//     private MockMvc mockMvc;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-//     @MockBean
-//     private SellerRepository sellerRepository;
+class AdminControllerTest {
 
-//     @MockBean
-//     private FinalEstateRepository finalEstateRepository;
+    @Mock
+    private SellerRepository sellerRepository;
 
-//     // Dashboard Home
-//     @Test
-//     void testDashboardHome() throws Exception {
-//         when(sellerRepository.count()).thenReturn(5L);
-//         when(finalEstateRepository.count()).thenReturn(3L);
+    @Mock
+    private FinalEstateRepository finalEstateRepository;
 
-//         mockMvc.perform(get("/admin/dashboard"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("admin_dashboard"))
-//                 .andExpect(model().attribute("totalSellers", 5L))
-//                 .andExpect(model().attribute("totalApproved", 3L))
-//                 .andExpect(model().attribute("content", "admin_dashboard_home"));
-//     }
+    @Mock
+    private Model model;
 
-//     //  Sellers Page
-//     @Test
-//     void testSellersPage() throws Exception {
-//         when(sellerRepository.findAll()).thenReturn(Arrays.asList(new Seller()));
+    @InjectMocks
+    private AdminController adminController;
 
-//         mockMvc.perform(get("/admin/dashboard/sellers"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("admin_sellers"))
-//                 .andExpect(model().attributeExists("sellers"))
-//                 .andExpect(model().attribute("content", "admin_sellers"));
-//     }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
-//     //  Approved Page
-//     @Test
-//     void testApprovedPage() throws Exception {
-//         when(finalEstateRepository.findAll()).thenReturn(Arrays.asList(new FinalEstate()));
+    // ✅ Test: Dashboard Home
+    @Test
+    void testDashboardHome() {
+        when(sellerRepository.count()).thenReturn(5L);
+        when(finalEstateRepository.count()).thenReturn(3L);
 
-//         mockMvc.perform(get("/admin/dashboard/approved"))
-//                 .andExpect(status().isOk())
-//                 .andExpect(view().name("admin_approved"))
-//                 .andExpect(model().attributeExists("approved"))
-//                 .andExpect(model().attribute("content", "admin_approved"));
-//     }
+        String viewName = adminController.dashboardHome(model);
 
-//     //  Approve Seller
-//     @Test
-//     void testApproveSeller() throws Exception {
-//         Seller seller = new Seller();
-//         seller.setId("1");
-//         seller.setPropertyName("Test Property");
-//         when(sellerRepository.findById("1")).thenReturn(Optional.of(seller));
+        assertEquals("admin_dashboard", viewName);
+        verify(model).addAttribute("totalSellers", 5L);
+        verify(model).addAttribute("totalApproved", 3L);
+        verify(model).addAttribute("content", "admin_dashboard_home");
+    }
 
-//         mockMvc.perform(get("/admin/approve/1"))
-//                 .andExpect(status().is3xxRedirection())
-//                 .andExpect(redirectedUrl("/admin/dashboard/sellers"));
+    // ✅ Test: Sellers Page
+    @Test
+    void testSellersPage() {
+        List<Seller> sellers = List.of(new Seller());
+        when(sellerRepository.findAll()).thenReturn(sellers);
 
-//         verify(finalEstateRepository).save(any(FinalEstate.class));
-//         verify(sellerRepository).deleteById("1");
-//     }
+        String viewName = adminController.sellersPage(model);
 
-//     //  Delete Seller
-//     @Test
-//     void testDeleteSeller() throws Exception {
-//         mockMvc.perform(get("/admin/delete/2"))
-//                 .andExpect(status().is3xxRedirection())
-//                 .andExpect(redirectedUrl("/admin/dashboard/sellers"));
+        assertEquals("admin_sellers", viewName);
+        verify(model).addAttribute("sellers", sellers);
+        verify(model).addAttribute("content", "admin_sellers");
+    }
 
-//         verify(sellerRepository).deleteById("2");
-//     }
+    // ✅ Test: Approved Page
+    @Test
+    void testApprovedPage() {
+        List<FinalEstate> estates = List.of(new FinalEstate());
+        when(finalEstateRepository.findAll()).thenReturn(estates);
 
-//     //  Delete Approved
-//     @Test
-//     void testDeleteApproved() throws Exception {
-//         mockMvc.perform(get("/admin/delete-approved/3"))
-//                 .andExpect(status().is3xxRedirection())
-//                 .andExpect(redirectedUrl("/admin/dashboard/approved"));
+        String viewName = adminController.approvedPage(model);
 
-//         verify(finalEstateRepository).deleteById("3");
-//     }
-// }
+        assertEquals("admin_approved", viewName);
+        verify(model).addAttribute("approved", estates);
+        verify(model).addAttribute("content", "admin_approved");
+    }
+
+    // ✅ Test: Approve Seller
+    @Test
+    void testApproveSeller() {
+        Seller seller = new Seller();
+        seller.setId(1L);
+        seller.setPropertyName("Dream Villa");
+        when(sellerRepository.findById(1L)).thenReturn(Optional.of(seller));
+
+        String viewName = adminController.approveSeller(1L, model);
+
+        assertEquals("redirect:/admin/dashboard/sellers", viewName);
+        verify(finalEstateRepository).save(any(FinalEstate.class));
+        verify(sellerRepository).deleteById(1L);
+    }
+
+    // ✅ Test: Approve Seller Not Found
+    @Test
+    void testApproveSeller_NotFound() {
+        when(sellerRepository.findById(999L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> adminController.approveSeller(999L, model));
+
+        assertEquals("Seller not found", exception.getMessage());
+    }
+
+    // ✅ Test: Delete Seller
+    @Test
+    void testDeleteSeller() {
+        List<FinalEstate> estates = List.of(new FinalEstate());
+        when(finalEstateRepository.findAll()).thenReturn(estates);
+
+        String viewName = adminController.deleteSeller(5L, model);
+
+        assertEquals("redirect:/admin/dashboard/sellers", viewName);
+        verify(sellerRepository).deleteById(5L);
+        verify(model).addAttribute("approvedList", estates);
+    }
+
+    // ✅ Test: Delete Approved
+    @Test
+    void testDeleteApproved() {
+        String viewName = adminController.deleteApproved(7L);
+
+        assertEquals("redirect:/admin/dashboard/approved", viewName);
+        verify(finalEstateRepository).deleteById(7L);
+    }
+}
