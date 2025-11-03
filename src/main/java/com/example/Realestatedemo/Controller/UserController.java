@@ -15,11 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Controller
-@Tag(name = "User Management", description = "APIs for user registration, login, and authentication")
+
 public class UserController {
 
     @Autowired
@@ -29,13 +27,13 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     // ---------------------- LOGIN ----------------------
-    @Operation(summary = "Get login page")
+   
     @GetMapping("/login")
     public String loginPage() {
         return "login"; 
     }
 
-    @Operation(summary = "Login user and redirect based on role")
+   
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
@@ -63,14 +61,14 @@ public class UserController {
     }
 
     // ---------------------- REGISTER ----------------------
-    @Operation(summary = "Get registration page")
+
     @GetMapping("/register")
     public String registerPage(Model model) {
         model.addAttribute("user", new Users_Realestate());
         return "register";
     }
 
-    @Operation(summary = "Register a new user")
+  
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("user") Users_Realestate user,
                            BindingResult result,
@@ -98,7 +96,7 @@ public class UserController {
     }
 
     // ---------------------- LOGOUT ----------------------
-    @Operation(summary = "Logout user")
+ 
     @GetMapping("/logout-success")
     public String logoutPage(Model model) {
         model.addAttribute("message", "You have been logged out successfully.");
@@ -106,7 +104,7 @@ public class UserController {
     }
 
     // ---------------------- HOME ----------------------
-    @Operation(summary = "Get home page")
+ 
     @GetMapping("/")
     public String home() {
         return "index"; 

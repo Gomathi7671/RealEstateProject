@@ -1,9 +1,12 @@
 package com.example.Realestatedemo.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
+@Table(name = "seller")
 public class Seller {
 
     @Id
@@ -31,32 +34,28 @@ public class Seller {
     @NotBlank(message = "Contact is required")
     private String contact;
 
-    private String imageUrl; // Cloudinary URL
-
+    private String imageUrl;
     @Column(columnDefinition = "TEXT")
-    private String description; // Optional
-
-    private String status = "Pending"; // Default status
-
-    @NotBlank(message = "City is required")
+    private String description;
+    private String status = "Pending";
     private String city;
-
-    @NotBlank(message = "State is required")
     private String state;
-
-    @NotBlank(message = "Postal code is required")
     private String postalCode;
+    private String propertyCategory;
+    private String amenities;
+    private String furnished;
+    private String builtYear;
 
-    @NotBlank(message = "Property category is required")
-    private String propertyCategory; // Apartment, House, Land
+    // ----------------- Owner mapping -----------------
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private Users_Realestate owner;
 
-    private String amenities; // Pool, Parking, Gym
+    // One seller can have many FinalEstate entries
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FinalEstate> finalEstates;
 
-    private String furnished; // Yes/No
-
-    private String builtYear; // Year of construction
-
-    // ===== Getters and Setters =====
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -110,4 +109,10 @@ public class Seller {
 
     public String getBuiltYear() { return builtYear; }
     public void setBuiltYear(String builtYear) { this.builtYear = builtYear; }
+
+    public Users_Realestate getOwner() { return owner; }
+    public void setOwner(Users_Realestate owner) { this.owner = owner; }
+
+    public List<FinalEstate> getFinalEstates() { return finalEstates; }
+    public void setFinalEstates(List<FinalEstate> finalEstates) { this.finalEstates = finalEstates; }
 }

@@ -32,7 +32,9 @@
     </style>
 </head>
 <body>
+    <a href="/buyer/logout" style="float:right; padding:10px; background:red; color:white; border-radius:5px;">Logout</a>
     <h2>Search Properties</h2>
+    
 
     <form th:action="@{/buyer/search}" method="get">
         <input type="text" name="city" placeholder="Enter the City">
@@ -68,7 +70,7 @@
 <div>
     <a href="/" class="btn-back">back to home</a>
 </div>
-<a href="/logout" style="float:right; padding:10px; background:red; color:white; border-radius:5px;">Logout</a>
+
 
 
 

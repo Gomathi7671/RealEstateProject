@@ -10,13 +10,13 @@ public class FinalEstate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id;
 
     @NotBlank
     private String propertyName;
 
     @NotBlank
-    private String propertyType;       // Rent or Sale
+    private String propertyType;
 
     private String squareFeet;
 
@@ -27,21 +27,21 @@ public class FinalEstate {
     private String city;
     private String state;
     private String postalCode;
-    private String propertyCategory;   // Apartment, House, Land
-    private String amenities;          // Pool, Parking, Gym
-    private String furnished;          // Yes/No
-    private String builtYear;          // Year of construction
-    private String description;        // Short description
+    private String propertyCategory;
+    private String amenities;
+    private String furnished;
+    private String builtYear;
+    private String description;
     private String landOwner;
     private String contact;
-    private String imageUrl;           // Cloudinary URL
+    private String imageUrl;
 
     // ----------------- Mapping to Seller -----------------
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id")
-    private Users_Realestate seller;
+    private Seller seller;
 
-    // ----------------- Getters & Setters -----------------
+    // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -93,6 +93,6 @@ public class FinalEstate {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public Users_Realestate getSeller() { return seller; }
-    public void setSeller(Users_Realestate seller) { this.seller = seller; }
+    public Seller getSeller() { return seller; }
+    public void setSeller(Seller seller) { this.seller = seller; }
 }

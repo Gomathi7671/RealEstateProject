@@ -18,23 +18,19 @@ public class DataLoader implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
-   @Override
-public void run(String... args) throws Exception {
-    if (userRepository.findByEmail("admin234@gmail.com").isEmpty()) {
-        Users_Realestate admin = new Users_Realestate();
-        admin.setName("adminator");
-        admin.setEmail("admin234@gmail.com");
-        admin.setPassword(passwordEncoder().encode("asdf1234asdf")); // 👈 encode
-        admin.setRole(Role.ADMIN);
+    @Override
+    public void run(String... args) throws Exception {
+        if (userRepository.findByEmail("admin234@gmail.com").isEmpty()) {
+            Users_Realestate admin = new Users_Realestate();
+            admin.setName("Adminator");
+            admin.setEmail("admin234@gmail.com");
+            admin.setPassword(passwordEncoder.encode("Admin@123")); // encoded password
+            admin.setRole(Role.ADMIN);
 
-        userRepository.save(admin);
-        System.out.println("Admin user created!");
-    } else {
-        System.out.println("Admin user already exists!");
+            userRepository.save(admin);
+            System.out.println("Admin user created!");
+        } else {
+            System.out.println("Admin user already exists!");
+        }
     }
-}
-
-private PasswordEncoder passwordEncoder() {
-    return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-}
 }
