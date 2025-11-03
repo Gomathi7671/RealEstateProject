@@ -4,10 +4,7 @@ import com.example.Realestatedemo.exception.PropertyNotFoundException;
 import com.example.Realestatedemo.model.FinalEstate;
 import com.example.Realestatedemo.repository.FinalEstateRepository;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,11 +62,6 @@ public class BuyerController {
         return "buyer";
     }
 
- @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
-       
-        // Redirect to login page after logout
-        return "/";
-    }
+ 
 
 }
